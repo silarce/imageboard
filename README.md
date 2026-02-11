@@ -13,6 +13,10 @@
 - 管理者可以建立討論版，並設定討論版的名稱與描述
 - 前端會有一組管理者專用的UI，方便管理所有使用者與討論串
 - 所有討論串若7天無回應會被自動刪除
+- 版主可以設定討論串的置頂、冷凍、刪除、刪除貼文、冷凍使用者
+- 管理者可以任命版主
+- 權限管理為RBAC，分為Admin、Moderator、Member三種角色
+
 
 # 技術棧
 - 框架 : nestjs
@@ -30,11 +34,11 @@
 
 # 資料庫設計 (Schema Design)
 
-  ## user
+  ## member
   - `email`: String (唯一索引)
   - `password`: String (bcrypt 雜湊後的密碼)
   - `nickname`: String
-  - `role`: Enum ['Admin', 'User']
+  - `role`: Enum ['Admin', 'Member']
   - `bannedUntil`: Date (用於暫時停權)
   ## board
   - `name`: String (版名)
@@ -47,16 +51,15 @@
   - `lastReplyAt`: Date (排序用)
   ## post
   - `threadId`: ObjectId (Ref: Thread)
-  - `userId`: ObjectId (Ref: User)
+  - `memberId`: ObjectId (Ref: Member)
   - `content`: Text
   - `images`: Array (R2圖片的key)
-  - `index`: Number (同一討論串內貼文的順序，OP為0，第一則回覆為1，以此類推)
 
 # 模組化大綱 (Module Breakdown)
   ## auth
   * 功能: 處理註冊、登入、JWT 簽發。
   * 技術: 使用 `Bcrypt` 處理密碼，`Passport-JWT` 驗證請求。
-  ## user
+  ## member
   * 功能: 個人資料維護。
   ## file
   * 功能: 封裝 AWS SDK (S3)，處理 R2 的上傳、刪除操作。
