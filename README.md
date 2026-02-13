@@ -36,7 +36,6 @@
 - 登入 : passport
 - 密碼雜湊 : bcrypt
 - 驗證 : jwt
-- 資料驗證 : zod
 - API文件 : swagger(並用plugin以用註解的方式定義API文件)
 - 圖片處理 : sharp(圖片縮圖)
 - 部署 : Render
@@ -48,11 +47,12 @@
   - `email`: string (唯一索引)
   - `password`: string (bcrypt 雜湊後的密碼)
   - `nickname`: string
-  - `role`: enum ['Admin', 'Animal', 'drama',...] Admin為超級管理員，其他為各討論版的版主，隨討論版增加而增加
+  - `role`: string[] // ['Admin', 'Animal', 'drama'] Admin為超級管理員，其他為各討論版的版主，隨討論版增加而增加
   
   ## board
-  - `name`: Ststringring (版名)
+  - `name`: string (版名)
   - `description`: string
+  - `role`: string (對應 moderator 的 role 欄位，決定哪些版主可以管理這個版)
   
   ## thread
   - `board`: Types.ObjectId | Board;
@@ -65,7 +65,6 @@
   ## threadPost
   - `board` : Types.ObjectId | Board;
   - `thread` : Types.ObjectId | Thread;
-  - `member` : Types.ObjectId | Member;
   - `r2`:{
     img: Types.ObjectId | R2
     thumbnail: Types.ObjectId | R2
@@ -82,7 +81,7 @@
   - `fileSize`: number (圖片的檔案大小)
 
 
-# 模組化大綱 (Module Breakdown)
+# 模組大綱 (Module Breakdown)
   ## auth
   * 功能: 處理註冊、登入、JWT 簽發。
   * 技術: 使用 `Bcrypt` 處理密碼。
@@ -103,6 +102,72 @@
  * **環境變數**: 透過 `.env` 嚴格區分開發與生產環境的資料庫金鑰。
  * **自動化文件**: 使用 `@nestjs/swagger` 插件，透過 DTO 與 Controller 註解自動生成互動式 API 文檔。
  * **CI/CD**: 專案完成時設定 GitHub Actions，推送到 main 分支時自動部署至 **Render**。
+
+
+
+
+# 開發階段規劃 (MoSCoW)
+
+## MVP (第 1 階段)
+- **Must**: 
+  - 看板清單
+  - 討論串列表(分頁)
+  - 建立討論串(含首貼)
+  - 回覆討論串(文字+圖片)
+  - 必要驗證與錯誤回應
+- **Should**:
+  - 圖片縮圖處理
+  - 圖片轉 WebP
+  - R2 上傳與刪除
+  - 更新 `Thread.lastReplyAt`
+  - 基本 Swagger 文件
+- **Could**: 
+
+- **Won't**:
+  - 舉報
+  - 角色/版主權限
+  - Redis 快取
+  - 排程清理
+  - Cloudflare 驗證
+  - 軟刪除與還原
+  - 完整管理 UI
+
+## v1 (第 2 階段)
+- **Must**: 
+  - 管理員登入功能(先只做admin)
+  - 管理員建立/管理看板
+  - 討論串置頂/冷凍
+  - 軟刪除討論串/貼文
+  - 基本防濫用(每 IP 發文頻率限制)
+  - IP 禁止發文
+  - 舉報功能(含自動隱藏規則)
+  - 後台管理 API
+- **Should**: 
+  - Redis 快取看板第一頁
+  - 簡單後台 UI
+  - 管理員可檢視舉報與 IP
+- **Could**: 
+  - 基本稽核紀錄(管理操作)
+- **Won't**: 
+  - 多版主角色與權限
+  - 排程硬刪
+  - Cloudflare 驗證
+
+## v2 (第 3 階段)
+- **Must**: 
+  - 多版主角色與權限
+  - 版主僅管理自己的看板
+  - 排程自動清理 7 天無回應討論串
+  - Cloudflare 機器人驗證
+- **Should**: 
+  - 更完整的管理 UI
+  - 可還原軟刪內容
+  - 完整 Swagger 文件 // 基本與完整差在哪裡?
+- **Could**: 
+  - 進階稽核/統計
+- **Won't**: 
+  - 跨資料庫服務拆分(PostgreSQL 第二套)
+
 
 # 其他
 未來可能會用postgresql再做一整組的service，作為練習
