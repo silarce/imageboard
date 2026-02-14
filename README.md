@@ -43,17 +43,17 @@
 
 # 資料庫設計 (Schema Design)
 
-  ## moderator
+  ## Manager
   - `email`: string (唯一索引)
   - `password`: string (bcrypt 雜湊後的密碼)
   - `nickname`: string
-  - `role`: string[] // ['Admin', 'Animal', 'drama'] Admin為超級管理員，其他為各討論版的版主，隨討論版增加而增加
+  - `role`: string[] // ['Admin', boardId, boardId,...] Admin為超級管理員，其他為，隨討論版增加而增加
   
   ## board
   - `name`: string (版名)
   - `description`: string
-  - `role`: string (對應 moderator 的 role 欄位，決定哪些版主可以管理這個版)
   
+
   ## thread
   - `board`: Types.ObjectId | Board;
   - `title`: string
