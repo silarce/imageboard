@@ -47,38 +47,51 @@
   - `email`: string (唯一索引)
   - `password`: string (bcrypt 雜湊後的密碼)
   - `nickname`: string
-  - `role`: string[] // ['Admin', boardId, boardId,...] Admin為超級管理員，其他為，隨討論版增加而增加
+  - `role`: ManagerRole // enum: 'Admin' | 'Moderator'
+  - `managedBoards`: Types.ObjectId[] // 版主管理的討論版 ID 列表 (Admin 不使用此欄位)
   
-  ## board
-  - `name`: string (版名)
-  - `description`: string
+  ## Board
+  - `name`: string (版名，唯一)
+  - `slug`: string (URL 縮寫，唯一，例如 'a', 'tech')
+  - `description`: string (版面描述)
   
-
-  ## thread
-  - `board`: Types.ObjectId | Board;
-  - `title`: string
+  ## Thread
+  - `board`: Types.ObjectId | Board
+  - `title`: string (討論串標題)
+  - `lastReplyAt`: Date (最後回覆時間，用於排序與7天自動刪除判斷)
   - `isPinned`: boolean (置頂)
   - `isLocked`: boolean (冷凍)
-  - `lastReplyAt`: Date (排序用，也用來判斷討論串是否7天無回應以自動刪除)
   - `softDeleted`: boolean (軟刪除)
   
-  ## threadPost
-  - `board` : Types.ObjectId | Board;
-  - `thread` : Types.ObjectId | Thread;
-  - `r2`:{
-    img: Types.ObjectId | R2
-    thumbnail: Types.ObjectId | R2
-    }[];
-  - `r2Keys` : {
-    img: string; // 原圖的key
-    thumbnail: string; // 縮圖的key
-    }[] (圖片在R2的key)
+  ## ThreadPost
+  - `thread`: Types.ObjectId | Thread
+  - `attachments`: PostAttachment[] (內嵌子文件)
+    - `key`: string (原圖 R2 Key)
+    - `thumbnailKey`: string (縮圖 R2 Key)
+    - `originalName`: string (原始檔名)
+    - `mimeType`: string
+    - `attachmentRef`: Types.ObjectId (參照 R2 原圖記錄)
+    - `thumbnailRef`: Types.ObjectId (參照 R2 縮圖記錄)
+  - `report`: Report[] (內嵌子文件)
+    - `reporterIp`: string (舉報者 IP)
+    - `reason`: string (舉報理由)
+    - `createdAt`: Date (自動產生)
+  - `reportCount`: number (舉報次數，冗餘欄位以加速查詢)
+  - `content`: string (貼文內容)
+  - `authorIp`: string (發文者 IP)
+  - `softDeleted`: boolean (軟刪除)
 
   ## R2
-  - `key`: string (圖片在R2的key)
+  - `key`: string (圖片在 R2 的 key，唯一)
   - `originalName`: string (上傳圖片的原始檔名)
-  - `mimetype`: string (圖片的MIME類型)
-  - `fileSize`: number (圖片的檔案大小)
+  - `mimeType`: string (圖片的 MIME 類型)
+  - `fileSize`: number (圖片的檔案大小，單位 bytes)
+
+  ## ForbiddenIp
+  - `ip`: string (被封禁的 IP，唯一)
+  - `reason`: string (封禁理由)
+  - `bannedBy`: Types.ObjectId | Manager (執行封禁的管理員)
+  - `expiresAt`: Date (可選，到期自動解封；若為空則永久封禁)
 
 
 # 模組大綱 (Module Breakdown)

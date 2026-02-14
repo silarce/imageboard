@@ -17,6 +17,8 @@ class Thread extends Document {
   @Prop({ required: true })
   title: string;
 
+  // 因為要同步刪除相關的threadPost與附件，所以不能在這裡設置ttl
+  // 必須在service寫程式刪除
   @Prop({ required: true, default: Date.now })
   lastReplyAt: Date;
 
