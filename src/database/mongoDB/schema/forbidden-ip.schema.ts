@@ -1,6 +1,7 @@
 import { Document, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Manager } from './moderator.schema';
+import mongoosePaginate from 'mongoose-paginate-v2';
 
 @Schema({
   collection: 'forbiddenIp',
@@ -26,5 +27,6 @@ class ForbiddenIp extends Document {
 }
 
 const ForbiddenIpSchema = SchemaFactory.createForClass(ForbiddenIp);
+ForbiddenIpSchema.plugin(mongoosePaginate);
 
 export { ForbiddenIp, ForbiddenIpSchema };

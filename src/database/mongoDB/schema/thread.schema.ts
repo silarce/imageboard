@@ -1,6 +1,7 @@
 import { Document, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Board } from './board.schema';
+import mongoosePaginate from 'mongoose-paginate-v2';
 
 @Schema({
   collection: 'thread',
@@ -48,5 +49,6 @@ ThreadSchema.index({
   lastReplyAt: 'desc',
   _id: 'asc',
 });
+ThreadSchema.plugin(mongoosePaginate);
 
 export { Thread, ThreadSchema };

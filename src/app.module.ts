@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 
 import { CommonExceptionFilter } from './common/filter/common-exception.filter';
 import { globalTransformPlugin } from './common/mongoose-plugins/global-transform.plugin';
+import { UnifiedResponseTransformer } from './common/interceptor/unified-response/unified-response-transformer.interceptor';
 
 // import { FooModule } from './module/foo/foo.module';
 
@@ -47,6 +48,10 @@ import { globalTransformPlugin } from './common/mongoose-plugins/global-transfor
     {
       provide: APP_FILTER,
       useClass: CommonExceptionFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: UnifiedResponseTransformer,
     },
   ],
 })
