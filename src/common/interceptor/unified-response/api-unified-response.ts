@@ -14,25 +14,37 @@ class UnifiedResponseDto<T> {
   data: T;
 }
 
-const ApiUnifiedResponse = <DataDto extends Type<unknown>>(dataDto: DataDto) =>
-  applyDecorators(
-    // 告訴 Swagger 載入我們自訂的外層結構和實際的 DTO
-    ApiExtraModels(UnifiedResponseDto, dataDto),
-    // 覆寫回傳 Schema，讓它包含外層結構和實際的 DTO
-    ApiOkResponse({
-      schema: {
-        allOf: [
-          { $ref: getSchemaPath(UnifiedResponseDto) },
-          {
-            properties: {
-              data: {
-                $ref: getSchemaPath(dataDto), // 將 data 指定為你傳入的 DTO
+const ApiUnifiedResponse = <DataDto extends Type<unknown>>(
+  dataDto?: DataDto,
+) => {
+  if (dataDto) {
+    return applyDecorators(
+      // 告訴 Swagger 載入我們自訂的外層結構和實際的 DTO
+      ApiExtraModels(UnifiedResponseDto, dataDto),
+      // 覆寫回傳 Schema，讓它包含外層結構和實際的 DTO
+      ApiOkResponse({
+        schema: {
+          allOf: [
+            { $ref: getSchemaPath(UnifiedResponseDto) },
+            {
+              properties: {
+                data: {
+                  $ref: getSchemaPath(dataDto), // 將 data 指定為你傳入的 DTO
+                },
               },
             },
-          },
-        ],
-      },
-    }),
-  );
+          ],
+        },
+      }),
+    );
+  } else {
+    return applyDecorators(
+      ApiExtraModels(UnifiedResponseDto),
+      ApiOkResponse({
+        schema: { $ref: getSchemaPath(UnifiedResponseDto) },
+      }),
+    );
+  }
+};
 
 export { ApiUnifiedResponse };
